@@ -1,0 +1,107 @@
+<!--  наследуемся от шаблона default.html, который мы создавали для flatpages -->
+{% extends 'flatpages/default.html' %}
+
+{% load custom_filters %}
+{% load custom_tags %}
+<!-- Название у нас будет products -->
+{% block title %}
+Products
+{% endblock title %}
+
+<!-- В контенте на странице мы выводим все товары -->
+{% block content %}
+<h1>Все наши товары</h1>
+   <!-- Используем переданную из представления переменную time_now
+   и применяем к ней фильтр date. По назначению этот фильтр очень похож
+   на метод strftime у объекта datetime в Python — вывод времени
+   в указанном формате. -->
+   <!-- Вот так выглядело использование переменной и фильтра -->
+   <!-- <h3>{{ time_now|date:'M d Y' }}</h3> -->
+   <!-- А вот так мы используем наш тег-->
+   <h3>{% current_time '%d %b %Y' %}</h3>
+<!-- Если в переменной next_sale будет None,
+   то выведется указанный в фильтре текст -->
+   <h3> {{ next_sale|default_if_none:"А о скидулях мы поведаем позже!" }} </h3>
+
+{# Добавляем форму, которая объединяет набор полей, которые будут отправляться в запросе #}
+   <form action="" method="get">
+<!--       {# Переменная, которую мы передали через контекст, может сгенерировать нам форму с полями #}-->
+<!--       {{ filterset.form.as_p }}-->
+<!--       {# Добавим кнопку отправки данных формы #}-->
+       {{ filterset.form.non_field_errors }}
+       {{ filterset.form.name__icontains.errors }}
+       <label for="{{ filterset.form.name__icontains.id_for_label }}">Поиск</label>
+       <input
+           id="{{ filterset.form.name__icontains.id }}"
+           name="{{ filterset.form.name__icontains.name }}"
+           value="{{ filterset.form.name__icontains.value }}"
+           class="form-control">
+       <input type="submit" class="mt-3 btn-primary" value="Найти" />
+<!--       <input type="submit" value="Выбрать" />-->
+   </form>
+<hr>
+    {# Теперь будем проверять не request.user.is_authenticated, а конкретные права #}
+    {% if perms.market.add_product %}
+    <a href="{% url 'product_create' %}">Добавить товар</a>
+    {% endif %}
+{% if products %}
+  <table>
+    <tr>
+        <td>Название</td>
+        <td>Описание</td>
+        <td>Категория</td>
+        <td>Цена</td>
+        <td>Количество</td>
+        {# Условие получается составным. #}
+        {% if perms.market.change_product or perms.market.delete_product %}
+        <td>Действия</td>
+        {% endif %}
+    </tr>
+    {% for product in products %}
+    <tr>
+        <td>{{ product.name }}</td>
+        <td>{{ product.description|truncatewords:2 }}</td>
+        <td>{{ product.category.name }}</td>
+        <!-- Используем наш фильтр -->
+        <td>{{ product.price|currency:"eur" }}</td>
+        <td>{{ product.quantity }}</td>
+        <td>
+            {# А здесь доступ для каждой ссылки теперь будем проверять отдельно #}
+            {% if perms.market.change_product %}
+            <a href="{% url 'product_update' pk=product.id %}">Изменить</a>
+            {% endif %}
+            {% if perms.market.delete_product %}
+            <a href="{% url 'product_delete' product.id %}">Удалить</a>
+            {% endif %}
+        </td>
+    </tr>
+    {% endfor %}
+  </table>
+
+{% else %}
+    <h2>Сегодня все закончилось!</h2>
+{% endif %}
+
+                  {# Добавляем пагинацию на страницу #}
+{# Информация о предыдущих страницах #}
+{% if page_obj.has_previous %}
+   <a href="?{% url_replace page=1 %}">1</a>
+   {% if page_obj.previous_page_number != 1 %}
+       ...
+       <a href="?{% url_replace page=page_obj.previous_page_number %}">{{ page_obj.previous_page_number }}</a>
+   {% endif %}
+{% endif %}
+
+{# Информация о текущей странице #}
+{{ page_obj.number }}
+
+{# Информация о следующих страницах #}
+{% if page_obj.has_next %}
+    <a href="?{% url_replace page=page_obj.next_page_number %}">{{ page_obj.next_page_number }}</a>
+    {% if paginator.num_pages != page_obj.next_page_number %}
+       ...
+       <a href="?{% url_replace page=page_obj.paginator.num_pages %}">{{ page_obj.paginator.num_pages }}</a>
+    {% endif %}
+{% endif %}
+
+{% endblock content %}
