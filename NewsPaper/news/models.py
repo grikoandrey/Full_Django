@@ -37,7 +37,7 @@ class Author(models.Model):
 
 
 class Category(models.Model):
-    objects = None
+    # objects = None
     POLITICS, EDUCATION, SPORT, MUSIC = 'POL', 'EDU', 'SPR', 'MUS'
 
     SUBJECTS = [
@@ -53,7 +53,7 @@ class Category(models.Model):
 
 
 class Post(models.Model):
-    objects = None
+    # objects = None
     ARTICLE, NEWS = 'ART', 'NEW'
 
     TYPE_POST = [(ARTICLE, 'Статья'), (NEWS, 'Новость')]
