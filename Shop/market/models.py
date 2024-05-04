@@ -32,10 +32,14 @@ class Staff(models.Model):
 class Product(models.Model):
     name = models.CharField(max_length=50, unique=True)
     description = models.TextField()
-    quantity = models.IntegerField(validators=[MinValueValidator(0)],)
+    quantity = models.IntegerField(validators=[MinValueValidator(0, 'Quantity should be >= 0')],)
     category = models.ForeignKey(to='Category', on_delete=models.CASCADE, related_name='products')
-    price = models.FloatField(validators=[MinValueValidator(0.0)],)
+    price = models.FloatField(validators=[MinValueValidator(0.0, 'Price should be >= 0.0')],)
     composition = models.TextField(default="Ingredients not specified")
+
+    @property  # допишем свойство, которое будет отображать есть ли товар на складе
+    def on_stock(self):
+        return self.quantity > 0
 
     def __str__(self):
         return f'{self.name.title()}: {self.description[:15]}'
