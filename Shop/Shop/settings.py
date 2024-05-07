@@ -128,12 +128,20 @@ DATABASES = {
 }
 
 CACHES = {
+    # 'default': {
+    #     'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
+    #     'LOCATION': os.path.join(BASE_DIR, 'cache_files'),  # Указываем, куда будем сохранять кэшируемые файлы!
+    #     # Не забываем создать папку cache_files внутри папки с manage.py!
+    #     # 'TIMEOUT': 30,
+    # },
     'default': {
-        'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
-        'LOCATION': os.path.join(BASE_DIR, 'cache_files'),  # Указываем, куда будем сохранять кэшируемые файлы!
-        # Не забываем создать папку cache_files внутри папки с manage.py!
-        # 'TIMEOUT': 30,
-    }
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': 'postgres',
+            'USER': 'postgres',
+            'PASSWORD': '',
+            'HOST': 'localhost',
+            'PORT': '5432',
+        },
 }
 
 
