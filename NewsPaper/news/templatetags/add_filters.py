@@ -3,7 +3,7 @@ from django import template
 
 register = template.Library()
 
-BAD_WORDS = ['', '', '']  # здесь добавим нецензурные слова, можно сделать отдельный файл.
+BAD_WORDS = ['', '', '',]  # здесь добавим нецензурные слова, можно сделать отдельный файл.
 
 
 @register.filter(name='censor')
